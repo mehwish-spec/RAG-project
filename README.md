@@ -24,20 +24,20 @@ Text cleaning / normalization
         ▼
  PostgreSQL + pgvector (vector storage)
        User question
-            │
-            ▼
+        │
+        ▼
      Query validation
-            │
-            ▼
+        │
+        ▼
      Query embedding
-            │
-            ▼
+        │
+        ▼
    pgvector similarity search
-            │
-            ▼
+        │
+        ▼
   Similarity threshold filter
-            │
-            ▼
+        │
+        ▼
    Optional reranking
             │
             ▼
