@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Reading Room — RAG Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="shell">
+
+    <!-- ============================== SIDEBAR ============================== -->
+    <nav class="sidebar" aria-label="Primary">
+      <div class="brand">
+        <svg width="26" height="26" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="28" height="26" rx="1" stroke="currentColor" stroke-width="2" />
+          <line x1="8" y1="11" x2="26" y2="11" stroke="currentColor" stroke-width="2" />
+          <line x1="8" y1="16" x2="22" y2="16" stroke="currentColor" stroke-width="2" />
+          <line x1="8" y1="21" x2="24" y2="21" stroke="currentColor" stroke-width="2" />
+        </svg>
+        <span>Reading Room</span>
+      </div>
+
+      <ul class="nav-list">
+        <li><button class="nav-item active" data-view="dashboard"><span class="nav-icon">◈</span>Dashboard</button></li>
+        <li><button class="nav-item" data-view="documents"><span class="nav-icon">▤</span>Documents</button></li>
+        <li><button class="nav-item" data-view="chat"><span class="nav-icon">✎</span>RAG Chat</button></li>
+        <!-- <li><button class="nav-item" data-view="search"><span class="nav-icon">⌕</span>Search</button></li> -->
+        <!-- <li><button class="nav-item" data-view="settings"><span class="nav-icon">⚙</span>Settings</button></li> -->
+      </ul>
+
+      <div class="sidebar-foot">
+        <span class="status-dot" id="apiStatusDot" aria-hidden="true"></span>
+        <span id="apiStatusLabel">checking&hellip;</span>
+      </div>
+    </nav>
+
+    <!-- ============================== MAIN ============================== -->
+    <div class="main">
+
+      <header class="topbar">
+        <h1 id="viewTitle">Dashboard</h1>
+        <p id="viewSubtitle" class="topbar-sub">An overview of what's in the catalog.</p>
+      </header>
+
+      <div class="workspace">
+
+        <!-- ---------- DASHBOARD ---------- -->
+        <section class="view active" id="view-dashboard">
+          <div class="stat-grid">
+            <div class="stat-card"><span class="stat-label"><span class="stat-icon">▤</span>Total Documents</span><span
+                class="stat-value" id="statTotal">–</span></div>
+            <div class="stat-card stat-ok"><span class="stat-label"><span class="stat-icon">✓</span>Indexed</span><span
+                class="stat-value" id="statCompleted">–</span></div>
+            <div class="stat-card stat-pending"><span class="stat-label"><span
+                  class="stat-icon">⟳</span>Processing</span><span class="stat-value" id="statProcessing">–</span></div>
+            <div class="stat-card stat-bad"><span class="stat-label"><span class="stat-icon">✕</span>Failed</span><span
+                class="stat-value" id="statFailed">–</span></div>
+            <div class="stat-card"><span class="stat-label"><span class="stat-icon">◆</span>Total Chunks</span><span
+                class="stat-value" id="statChunks">–</span></div>
+          </div>
+
+          <div class="panel-row">
+            <div class="panel">
+              <h2>System Health</h2>
+              <dl class="health-list" id="healthList">
+                <div class="health-row">
+                  <dt>Database</dt>
+                  <dd><span class="pill" id="healthDb">checking…</span></dd>
+                </div>
+                <div class="health-row">
+                  <dt>Vector extension</dt>
+                  <dd><span class="pill" id="healthVector">checking…</span></dd>
+                </div>
+                <div class="health-row">
+                  <dt>Configuration</dt>
+                  <dd><span class="pill" id="healthConfig">checking…</span></dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head-row">
+                <h2>Recent Documents</h2>
+                <button class="link-btn" data-view-link="documents">View all →</button>
+              </div>
+              <ul class="mini-list" id="recentDocsList">
+                <li class="empty-row">No documents yet.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- DOCUMENTS ---------- -->
+        <section class="view" id="view-documents">
+          <div class="intake-row">
+            <label class="intake-drop" id="dropZone" for="fileInput">
+              <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" hidden />
+              <span class="intake-icon">＋</span>
+              <span class="intake-copy"><strong>File a new document</strong><br>PDF · DOC · DOCX · TXT — drop or
+                click</span>
+            </label>
+
+            <details class="intake-text">
+              <summary>Or accession raw text</summary>
+              <form id="rawTextForm">
+                <input type="text" id="rawTextFilename" placeholder="label, e.g. meeting-notes.txt" required />
+                <textarea id="rawTextContent" rows="3" placeholder="Paste the text to ingest…" required></textarea>
+                <button type="submit">Add to catalog</button>
+              </form>
+            </details>
+          </div>
+
+          <div class="table-wrap">
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th>Filename</th>
+                  <th>Type</th>
+                  <th>Size</th>
+                  <th>Uploaded</th>
+                  <th>Status</th>
+                  <th>Chunks</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="documentTableBody">
+                <tr>
+                  <td colspan="7" class="empty-row">The shelf is empty. File a document above to begin.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ---------- CHAT ---------- -->
+        <section class="view" id="view-chat">
+          <div class="desk">
+            <div class="desk-head">
+              <label class="scope-select">
+                <span>Search within</span>
+                <select id="scopeSelect">
+                  <option value="">All documents</option>
+                </select>
+              </label>
+              <button class="link-btn" id="clearChatBtn">Clear chat</button>
+            </div>
+
+            <div class="transcript" id="transcript">
+              <div class="transcript-empty">
+                <p>Ask a question below. Answers are drawn only from documents in the catalog, with citations back to
+                  the exact source and page.</p>
+              </div>
+            </div>
+
+            <form class="query-bar" id="queryForm">
+              <input type="text" id="queryInput" placeholder="What would you like to know?" autocomplete="off"
+                required />
+              <button type="submit" id="askButton"><span class="btn-label">Ask</span></button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ---------- SEARCH ---------- -->
+        <!--
+        <section class="view" id="view-search">
+          <div class="panel">
+            <h2>Semantic Search</h2>
+            <p class="panel-hint">Runs retrieval only — no LLM call. Useful for checking what the RAG pipeline can
+              actually find before asking a full question.</p>
+            <form class="search-form" id="searchForm">
+              <input type="text" id="searchQueryInput" placeholder="Search phrase…" required />
+              <label class="inline-field">
+                <span>Top-K</span>
+                <input type="number" id="searchTopK" min="1" max="50" value="5" />
+              </label>
+              <button type="submit">Search</button>
+            </form>
+          </div>
+
+          <ul class="result-list" id="searchResults"></ul>
+        </section>
+        -->
+
+        <!-- ---------- SETTINGS ---------- -->
+        <!--
+        <section class="view" id="view-settings">
+          <div class="panel-row">
+            <div class="panel">
+              <h2>Models</h2>
+              <dl class="kv-list" id="settingsModels"></dl>
+            </div>
+            <div class="panel">
+              <h2>Chunking</h2>
+              <dl class="kv-list" id="settingsChunking"></dl>
+            </div>
+          </div>
+          <div class="panel-row">
+            <div class="panel">
+              <h2>Retrieval</h2>
+              <dl class="kv-list" id="settingsRetrieval"></dl>
+            </div>
+            <div class="panel">
+              <h2>Uploads</h2>
+              <dl class="kv-list" id="settingsUploads"></dl>
+            </div>
+          </div>
+          <p class="panel-hint">These are set via environment variables (<code>.env</code>) and require a backend
+            restart to change. Nothing here is editable from the UI on purpose — API keys and connection strings are
+            never exposed.</p>
+        </section>
+        -->
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== DRAWER ============================== -->
+  <div class="drawer-overlay" id="drawerOverlay">
+    <aside class="drawer" id="docDrawer" aria-label="Document details">
+      <div class="drawer-head">
+        <h2 id="drawerTitle">Document</h2>
+        <button class="drawer-close" id="drawerClose" aria-label="Close">✕</button>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+    </aside>
+  </div>
+
+  <!-- ============================== TOASTS ============================== -->
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <!-- ============================== TEMPLATES ============================== -->
+  <template id="answerTemplate">
+    <div class="entry entry-answer">
+      <div class="entry-label">Answer</div>
+      <p class="entry-text"></p>
+      <div class="citation-rail"></div>
+    </div>
+  </template>
+
+  <template id="questionTemplate">
+    <div class="entry entry-question">
+      <div class="entry-label">You asked</div>
+      <p class="entry-text"></p>
+    </div>
+  </template>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>
